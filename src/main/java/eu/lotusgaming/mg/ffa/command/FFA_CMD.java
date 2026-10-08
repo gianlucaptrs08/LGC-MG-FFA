@@ -190,8 +190,8 @@ public class FFA_CMD implements CommandExecutor{
 						}
 					}
 			}else {
-				p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§6FFA §cVersion: §e" + Main.instance.getDescription().getVersion());
-				p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cEntwickelt von: §e" + Main.instance.getDescription().getAuthors());
+				p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§6FFA §cVersion: §e" + Main.instance.getPluginMeta().getVersion());
+				p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cEntwickelt von: §e" + Main.instance.getPluginMeta().getAuthors());
 			}
 			
 		}

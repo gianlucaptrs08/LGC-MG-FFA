@@ -17,7 +17,7 @@ public class Attackcooldown {
 	        if (i != null) {
 	            i.setBaseValue(amount);
 	        } else {
-	            System.err.println("Der Cooldown konnte nicht gesetzt werden für: " + p.getDisplayName());
+	            System.err.println("Der Cooldown konnte nicht gesetzt werden für: " + p.displayName());
 	        }
 	    }
 	
