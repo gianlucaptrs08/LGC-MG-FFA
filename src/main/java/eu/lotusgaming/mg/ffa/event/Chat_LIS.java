@@ -1,7 +1,6 @@
 package eu.lotusgaming.mg.ffa.event;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,6 +16,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
+import eu.lotusgaming.mg.ffa.api.MapAPI;
 import eu.lotusgaming.mg.ffa.main.LotusController;
 import eu.lotusgaming.mg.ffa.main.Main;
 import eu.lotusgaming.mg.ffa.misc.Prefix;
@@ -87,119 +87,42 @@ public class Chat_LIS implements Listener{
 	
 	public static void startSchedulermapchange() {
 		File configfile = new File("plugins/LotusFFA/config.yml");
-		File spawn = new File("plugins/LotusFFA/spawn.yml");
-		YamlConfiguration cfg = YamlConfiguration.loadConfiguration(spawn);
 		YamlConfiguration config = YamlConfiguration.loadConfiguration(configfile);
 		LotusController lc = new LotusController();
 		if(config.getBoolean("mapsettings.mapchange") == true) {
 			
 		new BukkitRunnable() {
 			
-			
 			@Override
 			public void run() {
-				for(Player all : Bukkit.getOnlinePlayers()) {
-					if(config.getBoolean("maps.map1") == true) {
-						config.set("maps.map1", false);
-						config.set("maps.map2", true);
-						config.set("maps.map3", false);
-						try {
-							config.save(configfile);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-							Chat_LIS.setScoreboard(all);
-							Location loc = all.getLocation();
-							if(cfg.getString("Map2.WORLD") == null) {
-								all.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cDas Spiel wurde noch nicht eingerichtet!");
-								all.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cRichte es ganz einfach ein mit §e/FFA setup");
-							}
-							loc.setX(cfg.getDouble("Map2.X"));
-							loc.setY(cfg.getDouble("Map2.Y"));
-							loc.setZ(cfg.getDouble("Map2.Z"));
-							loc.setYaw((float)cfg.getDouble("Map2.YAW"));
-							loc.setPitch((float)cfg.getDouble("Map2.PITCH"));
-							loc.setWorld(Bukkit.getWorld(cfg.getString("Map2.WORLD")));
-							Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wird in §e10 Sekunden §7gewechselt!");
-							Bukkit.getScheduler().scheduleSyncDelayedTask(Main.instance, new Runnable() {
-								
-								@Override
-								public void run() {
-									all.teleport(loc);
-									Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wurde nun gewechselt zu: §e" + config.getString("ffa.Mapname2"));
-									setScoreboard(all);
-								}
-							}, 100);
-					}else if(config.getBoolean("maps.map2") == true) {
-						config.set("maps.map1", false);
-						config.set("maps.map2", false);
-						config.set("maps.map3", true);
-						try {
-							config.save(configfile);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-							Chat_LIS.setScoreboard(all);
-							Location loc = all.getLocation();
-							if(cfg.getString("Map3.WORLD") == null) {
-								all.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cDas Spiel wurde noch nicht eingerichtet!");
-								all.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cRichte es ganz einfach ein mit §e/FFA setup");
-							}
-							loc.setX(cfg.getDouble("Map3.X"));
-							loc.setY(cfg.getDouble("Map3.Y"));
-							loc.setZ(cfg.getDouble("Map3.Z"));
-							loc.setYaw((float)cfg.getDouble("Map3.YAW"));
-							loc.setPitch((float)cfg.getDouble("Map3.PITCH"));
-							loc.setWorld(Bukkit.getWorld(cfg.getString("Map3.WORLD")));
-							Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wird in §e10 Sekunden §7gewechselt!");
-							Bukkit.getScheduler().scheduleSyncDelayedTask(Main.instance, new Runnable() {
-								
-								@Override
-								public void run() {
-									all.teleport(loc);
-									Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wurde nun gewechselt zu: §e" + config.getString("ffa.Mapname3"));
-									setScoreboard(all);
-								}
-							}, 100);
-					}else if(config.getBoolean("maps.map3") == true) {
-						config.set("maps.map1", true);
-						config.set("maps.map2", false);
-						config.set("maps.map3", false);
-						try {
-							config.save(configfile);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-							Chat_LIS.setScoreboard(all);
-							Location loc = all.getLocation();
-							if(cfg.getString("Spawn.WORLD") == null) {
-								all.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cDas Spiel wurde noch nicht eingerichtet!");
-								all.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cRichte es ganz einfach ein mit §e/FFA setup");
-							}
-							loc.setX(cfg.getDouble("Spawn.X"));
-							loc.setY(cfg.getDouble("Spawn.Y"));
-							loc.setZ(cfg.getDouble("Spawn.Z"));
-							loc.setYaw((float)cfg.getDouble("Spawn.YAW"));
-							loc.setPitch((float)cfg.getDouble("Spawn.PITCH"));
-							loc.setWorld(Bukkit.getWorld(cfg.getString("Spawn.WORLD")));
-							Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wird in §e10 Sekunden §7gewechselt!");
-							Bukkit.getScheduler().scheduleSyncDelayedTask(Main.instance, new Runnable() {
-								
-								@Override
-								public void run() {
-									all.teleport(loc);
-									Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wurde nun gewechselt zu: §e" + config.getString("ffa.Mapname1"));
-									setScoreboard(all);
-								}
-							}, 200);
-						}
-					
-					}
-				
+				int next = MapAPI.getNextMap();
+				if(MapAPI.getSpawn(next) == null) {
+					Bukkit.getConsoleSender().sendMessage(lc.getPrefix(Prefix.MAIN) + "§cMap " + next + " wurde noch nicht eingerichtet, Mapwechsel übersprungen!");
+					return;
 				}
-			}.runTaskTimer(Main.instance, 0, 12000);
+				Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wird in §e10 Sekunden §7gewechselt!");
+				Bukkit.getScheduler().runTaskLater(Main.instance, () -> changeMap(), 200);
+			}
+		}.runTaskTimer(Main.instance, 12000, 12000);
 		} else {
 			Bukkit.getConsoleSender().sendMessage(lc.getPrefix(Prefix.MAIN) + "§cMapchange wurde in der §econfig.yml §cdeaktiviert!");
 		}
+	}
+	
+	//Switches to the next map and teleports all players. Returns false, if the next map has not been set up yet.
+	public static boolean changeMap() {
+		LotusController lc = new LotusController();
+		int next = MapAPI.getNextMap();
+		Location loc = MapAPI.getSpawn(next);
+		if(loc == null) {
+			return false;
+		}
+		MapAPI.setCurrentMap(next);
+		for(Player all : Bukkit.getOnlinePlayers()) {
+			all.teleport(loc);
+			setScoreboard(all);
+		}
+		Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wurde nun gewechselt zu: §e" + MapAPI.getMapName(next));
+		return true;
 	}
 }

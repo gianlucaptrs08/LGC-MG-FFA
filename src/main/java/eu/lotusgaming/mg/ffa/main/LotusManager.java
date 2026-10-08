@@ -33,6 +33,14 @@ public class LotusManager {
 		cfg.addDefault("MySQL.Database", "Testdatenbank");
 		cfg.addDefault("MySQL.Username", "Test");
 		cfg.addDefault("MySQL.Password", "Supersicherespasswort");
+		cfg.addDefault("mapsettings.mapchange", false);
+		cfg.addDefault("mapsettings.teams", false);
+		cfg.addDefault("maps.map1", true);
+		cfg.addDefault("maps.map2", false);
+		cfg.addDefault("maps.map3", false);
+		cfg.addDefault("ffa.Mapname1", "Map 1");
+		cfg.addDefault("ffa.Mapname2", "Map 2");
+		cfg.addDefault("ffa.Mapname3", "Map 3");
 		cfg.options().copyDefaults(true);
 		try {
 			cfg.save(mainConfig);
@@ -67,9 +75,14 @@ public class LotusManager {
 		long current = System.currentTimeMillis();
 		
 		LotusController lc = new LotusController();
-		lc.initLanguageSystem();
-		lc.initPlayerLanguages();
-		lc.initPrefixSystem();
+		//Without a database connection these would crash the plugin on startup
+		if(MySQL.isConnected()) {
+			lc.initLanguageSystem();
+			lc.initPlayerLanguages();
+			lc.initPrefixSystem();
+		}else {
+			Main.logger.severe("No MySQL connection! Language system, prefixes and stats will not work. Please check the MySQL settings in the config.yml");
+		}
 		lc.loadServerIDName();
 		
 		Chat_LIS.startSchedulermapchange();

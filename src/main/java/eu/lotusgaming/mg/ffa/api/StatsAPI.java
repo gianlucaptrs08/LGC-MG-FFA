@@ -19,7 +19,7 @@ public class StatsAPI {
 	public boolean hasMGAccount() {
 		boolean hasAccount = false;
 		try {
-			PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT mg_user FROM mc_minigameusers WHERE mg_user = ? AND mg_name = FFA");
+			PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT mg_user FROM mc_minigameusers WHERE mg_user = ? AND mg_name = 'FFA'");
 			ps.setString(1, player.getUniqueId().toString());
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()) {
@@ -47,7 +47,7 @@ public class StatsAPI {
 
 	public void addKill() {
 		try {
-			PreparedStatement ps = MySQL.getConnection().prepareStatement("UPDATE mc_minigameusers SET kills = kills + 1 WHERE mg_user = ? AND mg_name = FFA");
+			PreparedStatement ps = MySQL.getConnection().prepareStatement("UPDATE mc_minigameusers SET kills = kills + 1 WHERE mg_user = ? AND mg_name = 'FFA'");
 			ps.setString(1, player.getUniqueId().toString());
 			ps.executeUpdate();
 			ps.close();
@@ -59,7 +59,7 @@ public class StatsAPI {
 	public int getKills() {
 		int kills = 0;
 		try {
-			PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT kills FROM mc_minigameusers WHERE mg_user = ? AND mg_name = FFA");
+			PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT kills FROM mc_minigameusers WHERE mg_user = ? AND mg_name = 'FFA'");
 			ps.setString(1, player.getUniqueId().toString());
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
@@ -75,7 +75,7 @@ public class StatsAPI {
 	
 	public void addDeath() {
 		try {
-			PreparedStatement ps = MySQL.getConnection().prepareStatement("UPDATE mc_minigameusers SET deaths = deaths + 1 WHERE mg_user = ? AND mg_name = FFA");
+			PreparedStatement ps = MySQL.getConnection().prepareStatement("UPDATE mc_minigameusers SET deaths = deaths + 1 WHERE mg_user = ? AND mg_name = 'FFA'");
 			ps.setString(1, player.getUniqueId().toString());
 			ps.executeUpdate();
 			ps.close();
@@ -87,7 +87,7 @@ public class StatsAPI {
 	public int getDeaths() {
 		int deaths = 0;
 		try {
-			PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT deaths FROM mc_minigameusers WHERE mg_user = ? AND mg_name = FFA");
+			PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT deaths FROM mc_minigameusers WHERE mg_user = ? AND mg_name = 'FFA'");
 			ps.setString(1, player.getUniqueId().toString());
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
@@ -103,7 +103,7 @@ public class StatsAPI {
 	
 	public void addGameWin() {
 		try {
-			PreparedStatement ps = MySQL.getConnection().prepareStatement("UPDATE mc_minigameusers SET wins = wins + 1 WHERE mg_user = ? AND mg_name = FFA");
+			PreparedStatement ps = MySQL.getConnection().prepareStatement("UPDATE mc_minigameusers SET wins = wins + 1 WHERE mg_user = ? AND mg_name = 'FFA'");
 			ps.setString(1, player.getUniqueId().toString());
 			ps.executeUpdate();
 			ps.close();
@@ -115,7 +115,7 @@ public class StatsAPI {
 	public int getGameWins() {
 		int wins = 0;
 		try {
-			PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT wins FROM mc_minigameusers WHERE mg_user = ? AND mg_name = FFA");
+			PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT wins FROM mc_minigameusers WHERE mg_user = ? AND mg_name = 'FFA'");
 			ps.setString(1, player.getUniqueId().toString());
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
@@ -131,7 +131,7 @@ public class StatsAPI {
 	
 	public void addGameLost() {
 		try {
-			PreparedStatement ps = MySQL.getConnection().prepareStatement("UPDATE mc_minigameusers SET loose = loose + 1 WHERE mg_user = ? AND mg_name = FFA");
+			PreparedStatement ps = MySQL.getConnection().prepareStatement("UPDATE mc_minigameusers SET loose = loose + 1 WHERE mg_user = ? AND mg_name = 'FFA'");
 			ps.setString(1, player.getUniqueId().toString());
 			ps.executeUpdate();
 			ps.close();
@@ -143,7 +143,7 @@ public class StatsAPI {
 	public int getGameLosts() {
 		int losts = 0;
 		try {
-			PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT loose FROM mc_minigameusers WHERE mg_user = ? AND mg_name = FFA");
+			PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT loose FROM mc_minigameusers WHERE mg_user = ? AND mg_name = 'FFA'");
 			ps.setString(1, player.getUniqueId().toString());
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
@@ -159,7 +159,7 @@ public class StatsAPI {
 	
 	public void addPoints(int points) {
 		try {
-			PreparedStatement ps = MySQL.getConnection().prepareStatement("UPDATE mc_minigameusers SET points = ? WHERE mg_user = ? AND mg_name = FFA");
+			PreparedStatement ps = MySQL.getConnection().prepareStatement("UPDATE mc_minigameusers SET points = points + ? WHERE mg_user = ? AND mg_name = 'FFA'");
 			ps.setInt(1, points);
 			ps.setString(2, player.getUniqueId().toString());
 			ps.executeUpdate();
@@ -172,7 +172,7 @@ public class StatsAPI {
 	public int getPoints() {
 		int points = 0;
         try {
-            PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT points FROM mc_minigameusers WHERE mg_user = ? AND mg_name = FFA");
+            PreparedStatement ps = MySQL.getConnection().prepareStatement("SELECT points FROM mc_minigameusers WHERE mg_user = ? AND mg_name = 'FFA'");
             ps.setString(1, player.getUniqueId().toString());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {

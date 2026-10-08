@@ -15,7 +15,7 @@ public class Attackcooldown {
 	  public static void setAttackCooldown(Player p, float amount) {
 	        AttributeInstance i = p.getAttribute(Attribute.ATTACK_SPEED);
 	        if (i != null) {
-	            i.setBaseValue(Attackcooldown.attackCooldown);
+	            i.setBaseValue(amount);
 	        } else {
 	            System.err.println("Der Cooldown konnte nicht gesetzt werden für: " + p.getDisplayName());
 	        }

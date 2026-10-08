@@ -1,18 +1,18 @@
 package eu.lotusgaming.mg.ffa.event;
 
-import java.io.File;
-
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
@@ -28,20 +28,15 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import eu.lotusgaming.mg.ffa.api.Attackcooldown;
+import eu.lotusgaming.mg.ffa.api.MapAPI;
 import eu.lotusgaming.mg.ffa.api.StatsAPI;
 import eu.lotusgaming.mg.ffa.command.FFA_CMD;
 import eu.lotusgaming.mg.ffa.main.LotusController;
+import eu.lotusgaming.mg.ffa.main.Main;
 import eu.lotusgaming.mg.ffa.misc.Money;
 import eu.lotusgaming.mg.ffa.misc.Prefix;
 
 public class FFA_LIS implements Listener{
-	
-	static File config = new File("plugins/LotusFFA/config.yml");
-	static YamlConfiguration cfg = null;
-	
-	{
-		cfg = YamlConfiguration.loadConfiguration(config);
-	}
 	
 	public void removePotionEffect(Player p) {
 		for(PotionEffect ef : p.getActivePotionEffects()) {
@@ -74,20 +69,14 @@ public class FFA_LIS implements Listener{
 		Player p = e.getPlayer();
 		Attackcooldown.setAttackCooldown(e.getPlayer(), Attackcooldown.attackCooldown);
 		e.setJoinMessage(lc.getPrefix(Prefix.MAIN) + "§a" + p.getName() + " §7hat das Spiel betreten!");
-		Location loc = p.getLocation();
-		if(cfg.getString("Spawn.WORLD") == null) {
+		Location loc = MapAPI.getSpawn(MapAPI.getCurrentMap());
+		if(loc == null) {
 			p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cDas Spiel wurde noch nicht eingerichtet!");
 			p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cRichte es ganz einfach ein mit §e/FFA setup");
+		}else {
+			p.teleport(loc);
 		}
-		//TODO: UN-HARDCODE!!!!!!
-		loc.setX(cfg.getDouble("Spawn.X"));
-		loc.setY(cfg.getDouble("Spawn.Y"));
-		loc.setZ(cfg.getDouble("Spawn.Z"));
-		loc.setYaw((float)cfg.getDouble("Spawn.YAW"));
-		loc.setPitch((float)cfg.getDouble("Spawn.PITCH"));
-		loc.setWorld(Bukkit.getWorld(cfg.getString("Spawn.WORLD")));
-		p.teleport(loc);
-		
+
 		giveInventory(p);
 		removePotionEffect(p);
 		for(Player all : Bukkit.getOnlinePlayers()) {
@@ -104,35 +93,33 @@ public class FFA_LIS implements Listener{
 	public void onRespawn(PlayerRespawnEvent e) {
 		Player p = e.getPlayer();
 		LotusController lc = new LotusController();
-		Location loc = p.getLocation();
-		if(cfg.getString("Spawn.WORLD") == null) {
+		Location loc = MapAPI.getSpawn(MapAPI.getCurrentMap());
+		if(loc == null) {
 			p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cDas Spiel wurde noch nicht eingerichtet!");
 			p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cRichte es ganz einfach ein mit §e/FFA setup");
+		}else {
+			e.setRespawnLocation(loc);
 		}
-		loc.setX(cfg.getDouble("Spawn.X"));
-		loc.setY(cfg.getDouble("Spawn.Y"));
-		loc.setZ(cfg.getDouble("Spawn.Z"));
-		loc.setYaw((float)cfg.getDouble("Spawn.YAW"));
-		loc.setPitch((float)cfg.getDouble("Spawn.PITCH"));
-		loc.setWorld(Bukkit.getWorld(cfg.getString("Spawn.WORLD")));
-		p.teleport(loc);
-		e.setRespawnLocation(loc);
-		
-		giveInventory(p);
+
+		//One tick later, so the inventory is not overwritten by the respawn itself
+		Bukkit.getScheduler().runTask(Main.instance, () -> giveInventory(p));
 	}
 	
 	@EventHandler
 	public void onKill(PlayerDeathEvent e) {
 		Player p = e.getEntity();
 		LotusController lc = new LotusController();
-        if(p.getLastDamageCause().getCause() == DamageCause.ENTITY_ATTACK) {
-        	Player k = e.getEntity().getKiller();
+		Player k = p.getKiller();
+		//The kit would otherwise lie around on the map
+		e.getDrops().clear();
+		//getKiller() covers all player kills (sword, sweep attack, bow, ...) and is null for mobs, fall damage etc.
+        if(k != null && !k.equals(p)) {
         	e.setDeathMessage(lc.getPrefix(Prefix.MAIN) + "§a" + p.getName() + " §ehas been killed by §a" + k.getName() + " §e!");
         	StatsAPI sapi = new StatsAPI(p);
         	StatsAPI kapi = new StatsAPI(k);
         	sapi.addDeath();
         	kapi.addKill();
-        	new LotusController().addMoney(p, 50, Money.BANK);
+        	lc.addMoney(k, 50, Money.BANK);
             k.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 80, 2));
             k.getInventory().addItem(lc.defItem(Material.ARROW, null, 3));
             k.getInventory().addItem(lc.defItem(Material.GOLDEN_APPLE, null, 1));
@@ -177,9 +164,20 @@ public class FFA_LIS implements Listener{
 			e.setCancelled(true);
 			return;
 		}
-	/*	if(FFA_CMD.inSideSpawn(e.getEntity().getLocation())) {
+		//Spawn protection: no damage inside the spawn area and no attacks out of it
+		if(e.getEntity() instanceof Player && MapAPI.isInSpawnArea(e.getEntity().getLocation())) {
 			e.setCancelled(true);
-		} */
+			return;
+		}
+		if(e instanceof EntityDamageByEntityEvent ev) {
+			Entity damager = ev.getDamager();
+			if(damager instanceof Projectile projectile && projectile.getShooter() instanceof Player shooter) {
+				damager = shooter;
+			}
+			if(damager instanceof Player && MapAPI.isInSpawnArea(damager.getLocation())) {
+				e.setCancelled(true);
+			}
+		}
 	}
 	
 	@EventHandler

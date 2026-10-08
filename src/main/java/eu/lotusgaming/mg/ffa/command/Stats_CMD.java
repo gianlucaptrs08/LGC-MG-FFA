@@ -22,9 +22,9 @@ public class Stats_CMD implements CommandExecutor{
 			LotusController lc = new LotusController();
 			if(args.length == 0) {
 				
-				double kills = new StatsAPI(p).getKills();
-				double tode = new StatsAPI(p).getDeaths();
-				double kd = (kills / tode);
+				int kills = new StatsAPI(p).getKills();
+				int tode = new StatsAPI(p).getDeaths();
+				String kd = formatKD(kills, tode);
 				p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§7----[§6Deine FFA Stats§7]----");
 				p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§7Your Kills: §6" + kills);
 				p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§7Your Deaths: §6" + tode);
@@ -36,9 +36,9 @@ public class Stats_CMD implements CommandExecutor{
 					Player target = Bukkit.getPlayer(args[0]);
 					if(target != null) {
 						if(new StatsAPI(target).hasMGAccount()) {
-							double kills = new StatsAPI(target).getKills();
-							double tode = new StatsAPI(target).getDeaths();
-							double kd = (kills/tode);
+							int kills = new StatsAPI(target).getKills();
+							int tode = new StatsAPI(target).getDeaths();
+							String kd = formatKD(kills, tode);
 							p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§7----[§a" + target.getName() + " §6FFA Stats§7]----");
 							p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§7Kills: §6" + kills);
 							p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§7Deaths: §6" + tode);
@@ -53,5 +53,11 @@ public class Stats_CMD implements CommandExecutor{
 			}
 		}
 		return true;
+	}
+	
+	//Without any deaths the K/D is just the amount of kills (instead of dividing by 0)
+	private String formatKD(int kills, int deaths) {
+		double kd = deaths == 0 ? kills : (double) kills / deaths;
+		return String.format("%.2f", kd);
 	}
 }

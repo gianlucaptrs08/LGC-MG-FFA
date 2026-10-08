@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,7 +18,7 @@ import eu.lotusgaming.mg.ffa.misc.Prefix;
 
 public class FFA_CMD implements CommandExecutor{
 
-	static File spawn = new File("plugins/LotusFFA/spawn.yml");
+	static File spawn = new File("plugins/LotusFFA/config.yml");
 	public static ArrayList<String> build = new ArrayList<>();
 	
 	@Override
@@ -108,90 +107,12 @@ public class FFA_CMD implements CommandExecutor{
 					}else if(args[0].equalsIgnoreCase("setmapchange") && args[1].equalsIgnoreCase("2")) {
 						p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cVerwende: §8>> §e/FFA mapchange <2|3> <setspawn> <pos1> <pos2>");
 					}else if(args[0].equalsIgnoreCase("mapchange") && args[1].equalsIgnoreCase("now")) {
-						File configfile = new File("plugins/LotusFFA/config.yml");
-						YamlConfiguration config = YamlConfiguration.loadConfiguration(configfile);
-						if(config.getBoolean("maps.map1") == true) {
-							config.set("maps.map1", false);
-							config.set("maps.map2", true);
-							config.set("maps.map3", false);
-							try {
-								config.save(configfile);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-							for(Player all : Bukkit.getOnlinePlayers()) {
-								Chat_LIS.setScoreboard(all);
-								YamlConfiguration cfg = YamlConfiguration.loadConfiguration(spawn);
-								Location loc = p.getLocation();
-								if(cfg.getString("Map2.WORLD") == null) {
-									p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cDas Spiel wurde noch nicht eingerichtet!");
-									p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cRichte es ganz einfach ein mit §e/FFA setup");
-								}
-								loc.setX(cfg.getDouble("Map2.X"));
-								loc.setY(cfg.getDouble("Map2.Y"));
-								loc.setZ(cfg.getDouble("Map2.Z"));
-								loc.setYaw((float)cfg.getDouble("Map2.YAW"));
-								loc.setPitch((float)cfg.getDouble("Map2.PITCH"));
-								loc.setWorld(Bukkit.getWorld(cfg.getString("Map2.WORLD")));
-								all.teleport(loc);
-							}
-							Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wurde nun gewechselt zu: §e" + config.getString("ffa.Mapname2"));
-						}else if(config.getBoolean("maps.map2") == true) {
-							config.set("maps.map1", false);
-							config.set("maps.map2", false);
-							config.set("maps.map3", true);
-							try {
-								config.save(configfile);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-							for(Player all : Bukkit.getOnlinePlayers()) {
-								Chat_LIS.setScoreboard(all);
-								YamlConfiguration cfg = YamlConfiguration.loadConfiguration(spawn);
-								Location loc = p.getLocation();
-								if(cfg.getString("Map3.WORLD") == null) {
-									p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cDas Spiel wurde noch nicht eingerichtet!");
-									p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cRichte es ganz einfach ein mit §e/FFA setup");
-								}
-								loc.setX(cfg.getDouble("Map3.X"));
-								loc.setY(cfg.getDouble("Map3.Y"));
-								loc.setZ(cfg.getDouble("Map3.Z"));
-								loc.setYaw((float)cfg.getDouble("Map3.YAW"));
-								loc.setPitch((float)cfg.getDouble("Map3.PITCH"));
-								loc.setWorld(Bukkit.getWorld(cfg.getString("Map3.WORLD")));
-								all.teleport(loc);
-							}
-							Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wurde nun gewechselt zu: §e" + config.getString("ffa.Mapname3"));
-						}else if(config.getBoolean("maps.map3") == true) {
-							config.set("maps.map1", true);
-							config.set("maps.map2", false);
-							config.set("maps.map3", false);
-							try {
-								config.save(configfile);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-							for(Player all : Bukkit.getOnlinePlayers()) {
-								Chat_LIS.setScoreboard(all);
-								YamlConfiguration cfg = YamlConfiguration.loadConfiguration(spawn);
-								Location loc = p.getLocation();
-								if(cfg.getString("Spawn.WORLD") == null) {
-									p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cDas Spiel wurde noch nicht eingerichtet!");
-									p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cRichte es ganz einfach ein mit §e/FFA setup");
-								}
-								loc.setX(cfg.getDouble("Spawn.X"));
-								loc.setY(cfg.getDouble("Spawn.Y"));
-								loc.setZ(cfg.getDouble("Spawn.Z"));
-								loc.setYaw((float)cfg.getDouble("Spawn.YAW"));
-								loc.setPitch((float)cfg.getDouble("Spawn.PITCH"));
-								loc.setWorld(Bukkit.getWorld(cfg.getString("Spawn.WORLD")));
-								all.teleport(loc);
-							}
-							Bukkit.broadcastMessage(lc.getPrefix(Prefix.MAIN) + "§7Die Map wurde nun gewechselt zu: §e" + config.getString("ffa.Mapname1"));
+						if(!Chat_LIS.changeMap()) {
+							p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cDie nächste Map wurde noch nicht eingerichtet!");
+							p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cRichte sie ein mit §e/FFA setmapchange <2|3> setspawn");
 						}
 					}
-						
-					}else if(args.length == 3) {
+				}else if(args.length == 3) {
 						if(args[0].equalsIgnoreCase("setmapchange") && args[1].equalsIgnoreCase("2") && args[2].equalsIgnoreCase("setspawn")) {
 							YamlConfiguration cfg = YamlConfiguration.loadConfiguration(spawn);
 							cfg.set("Map2.X", Double.valueOf(p.getLocation().getX()));
