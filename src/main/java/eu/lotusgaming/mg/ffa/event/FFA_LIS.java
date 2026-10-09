@@ -22,8 +22,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -35,6 +33,7 @@ import eu.lotusgaming.mg.ffa.main.LotusController;
 import eu.lotusgaming.mg.ffa.main.Main;
 import eu.lotusgaming.mg.ffa.misc.Money;
 import eu.lotusgaming.mg.ffa.misc.Prefix;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class FFA_LIS implements Listener{
 	
@@ -68,7 +67,7 @@ public class FFA_LIS implements Listener{
 		LotusController lc = new LotusController();
 		Player p = e.getPlayer();
 		Attackcooldown.setAttackCooldown(e.getPlayer(), Attackcooldown.attackCooldown);
-		e.setJoinMessage(lc.getPrefix(Prefix.MAIN) + "§a" + p.getName() + " §7hat das Spiel betreten!");
+		e.joinMessage(LegacyComponentSerializer.legacySection().deserialize(lc.getPrefix(Prefix.MAIN) + "§a" + p.getName() + " §7hat das Spiel betreten!"));
 		Location loc = MapAPI.getSpawn(MapAPI.getCurrentMap());
 		if(loc == null) {
 			p.sendMessage(lc.getPrefix(Prefix.MAIN) + "§cDas Spiel wurde noch nicht eingerichtet!");
@@ -114,7 +113,7 @@ public class FFA_LIS implements Listener{
 		e.getDrops().clear();
 		//getKiller() covers all player kills (sword, sweep attack, bow, ...) and is null for mobs, fall damage etc.
         if(k != null && !k.equals(p)) {
-        	e.setDeathMessage(lc.getPrefix(Prefix.MAIN) + "§a" + p.getName() + " §ehas been killed by §a" + k.getName() + " §e!");
+        	e.deathMessage(LegacyComponentSerializer.legacySection().deserialize(lc.getPrefix(Prefix.MAIN) + "§a" + p.getName() + " §ehas been killed by §a" + k.getName() + " §e!"));
         	StatsAPI sapi = new StatsAPI(p);
         	StatsAPI kapi = new StatsAPI(k);
         	sapi.addDeath();
@@ -124,7 +123,7 @@ public class FFA_LIS implements Listener{
             k.getInventory().addItem(lc.defItem(Material.ARROW, null, 3));
             k.getInventory().addItem(lc.defItem(Material.GOLDEN_APPLE, null, 1));
         }else {
-        	e.setDeathMessage(lc.getPrefix(Prefix.MAIN) + "§a" + p.getName() + "§7 died!");
+        	e.deathMessage(LegacyComponentSerializer.legacySection().deserialize(lc.getPrefix(Prefix.MAIN) + "§a" + p.getName() + "§7 died!"));
         	new StatsAPI(p).addDeath();
         }
 	}
@@ -134,7 +133,7 @@ public class FFA_LIS implements Listener{
 		Player p = e.getPlayer();
 		LotusController lc = new LotusController();
 		Attackcooldown.setAttackCooldown(e.getPlayer(), Attackcooldown.VANILLA_ATTACK_SPEED);
-		e.setQuitMessage(lc.getPrefix(Prefix.MAIN) + "§c" + p.getName() + " §7hat das Spiel verlassen!");
+		e.quitMessage(LegacyComponentSerializer.legacySection().deserialize(lc.getPrefix(Prefix.MAIN) + "§c" + p.getName() + " §7hat das Spiel verlassen!"));
 		FFA_CMD.build.remove(p.getName());
 	}
 	

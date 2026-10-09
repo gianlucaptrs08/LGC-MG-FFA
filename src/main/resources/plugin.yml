@@ -2,7 +2,7 @@ name: LotusFFA
 authors: [Gianlucaptrs, MauriceLPs]
 version: 1.0.0
 main: eu.lotusgaming.mg.ffa.main.Main
-api-version: '1.21'
+api-version: '26.3'
 
 commands:
     ffa:

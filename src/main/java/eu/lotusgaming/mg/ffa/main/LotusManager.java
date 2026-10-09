@@ -90,8 +90,8 @@ public class LotusManager {
 		
 		Bukkit.getConsoleSender().sendMessage("§7Post-Initialization took §a" + (System.currentTimeMillis() - current) + "ms§7.");
 
-		Bukkit.getConsoleSender().sendMessage(lc.getPrefix(Prefix.MAIN) + "§6FFA §cVersion: §e" + Main.instance.getDescription().getVersion());
-		Bukkit.getConsoleSender().sendMessage(lc.getPrefix(Prefix.MAIN) + "§cEntwickelt von: §e" + Main.instance.getDescription().getAuthors());
+		Bukkit.getConsoleSender().sendMessage(lc.getPrefix(Prefix.MAIN) + "§6FFA §cVersion: §e" + Main.instance.getPluginMeta().getVersion());
+		Bukkit.getConsoleSender().sendMessage(lc.getPrefix(Prefix.MAIN) + "§cEntwickelt von: §e" + Main.instance.getPluginMeta().getAuthors());
 	}
 
 }

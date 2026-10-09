@@ -36,7 +36,9 @@ import eu.lotusgaming.mg.ffa.misc.Playerdata;
 import eu.lotusgaming.mg.ffa.misc.Prefix;
 import eu.lotusgaming.mg.ffa.misc.RAMInfo;
 import eu.lotusgaming.mg.ffa.misc.Serverdata;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class LotusController {
 	
@@ -160,7 +162,7 @@ public class LotusController {
 			if(langMap.containsKey(language)) {
 				HashMap<String, String> localMap = langMap.get(language);
 				if(localMap.containsKey(path)) {
-					return ChatColor.translateAlternateColorCodes('&', localMap.get(path));
+					return translateAlternateColorCodes(localMap.get(path));
 				}else {
 					return "The path '" + path + "' does not exist!";
 				}
@@ -226,10 +228,26 @@ public class LotusController {
 		// < - - - END OF PREFIX SYSTEM - - - >
 		// < - - - BEGIN OF THE ITEMSTACKS - - - >
 		
+		//§-Strings (incl. HEX from translateHEX) to Components; ITALIC false, as setDisplayName/setLore were not italic either
+		private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.builder().character('§').hexColors().useUnusualXRepeatedCharacterHexFormat().build();
+		
+		private static Component legacy(String text) {
+			if(text == null) return null;
+			return LEGACY.deserialize(text).decoration(TextDecoration.ITALIC, false);
+		}
+		
+		private static List<Component> legacy(List<String> lines) {
+			List<Component> components = new ArrayList<>();
+			for(String line : lines) {
+				components.add(legacy(line));
+			}
+			return components;
+		}
+		
 		public ItemStack defItem(Material material, String displayName, int amount) {
 			ItemStack is = new ItemStack(material, amount);
 			ItemMeta im = is.getItemMeta();
-			im.setDisplayName(displayName);
+			im.displayName(legacy(displayName));
 			is.setItemMeta(im);
 			return is;
 		}
@@ -239,12 +257,12 @@ public class LotusController {
 			int randomIndex = random.nextInt(materialList.size());
 			ItemStack is = new ItemStack(materialList.get(randomIndex), amount);
 			ItemMeta im = is.getItemMeta();
-			im.setDisplayName(displayName);
+			im.displayName(legacy(displayName));
 			List<String> loreList = new ArrayList<>();
 			for(String string : lore) {
 				loreList.add(string);
 			}
-			im.setLore(loreList);
+			im.lore(legacy(loreList));
 			is.setItemMeta(im);
 			return is;
 		}
@@ -254,7 +272,7 @@ public class LotusController {
 			PotionMeta pm = (PotionMeta) is.getItemMeta();
 			pm.setBasePotionType(potionType);
 			pm.setColor(potionColor);
-			pm.setDisplayName(displayName);
+			pm.displayName(legacy(displayName));
 			is.setItemMeta(pm);
 			return is;
 		}
@@ -262,7 +280,7 @@ public class LotusController {
 		public ItemStack enchantedItem(Material material, int amount, String displayName, Enchantment enchantment) {
 			ItemStack is = new ItemStack(material, amount);
 			ItemMeta im = is.getItemMeta();
-			im.setDisplayName(displayName);
+			im.displayName(legacy(displayName));
 			im.addEnchant(enchantment, 1, true);
 			is.setItemMeta(im);
 			return is;
@@ -275,8 +293,8 @@ public class LotusController {
 			}
 			ItemStack is = new ItemStack(material, amount);
 			ItemMeta im = is.getItemMeta();
-			im.setDisplayName(displayname);
-			im.setLore(loreList);
+			im.displayName(legacy(displayname));
+			im.lore(legacy(loreList));
 			is.setItemMeta(im);
 			return is;
 		}
@@ -286,7 +304,7 @@ public class LotusController {
 			ItemStack skull = new ItemStack(Material.PLAYER_HEAD, amount);
 			SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
 			skullMeta.setOwner(skullOwner);
-			skullMeta.setDisplayName(displayname);
+			skullMeta.displayName(legacy(displayname));
 			skull.setItemMeta(skullMeta);
 			return skull;
 		}
@@ -295,7 +313,7 @@ public class LotusController {
 			ItemStack skull = new ItemStack(Material.PLAYER_HEAD, amount);
 			SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
 			skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(skullOwner.getUniqueId()));
-			skullMeta.setDisplayName(displayname);
+			skullMeta.displayName(legacy(displayname));
 			skull.setItemMeta(skullMeta);
 			return skull;
 		}
@@ -325,8 +343,8 @@ public class LotusController {
 			if(isLocked) {
 				lore.add("§7Locked: §cyes");
 			}
-			im.setLore(lore);
-			im.setDisplayName(fancyName);
+			im.lore(legacy(lore));
+			im.displayName(legacy(fancyName));
 			is.setItemMeta(im);
 			return is;
 		}
@@ -335,10 +353,10 @@ public class LotusController {
 			List<String> lore = new ArrayList<>();
 			ItemStack item = new ItemStack(mat, 1);
 			ItemMeta meta = item.getItemMeta();
-			meta.setDisplayName(dpname);
+			meta.displayName(legacy(dpname));
 			lore.add("§7Current Players on");
 			lore.add("§a" + dpname + "§7: §a" + world.getPlayers().size());
-			meta.setLore(lore);
+			meta.lore(legacy(lore));
 			item.setItemMeta(meta);
 			return item;
 		}
@@ -503,8 +521,24 @@ public class LotusController {
 		private static final Pattern HEX_PATTERN = Pattern.compile("#[0-9a-fA-F]{6}");
 		public static String translateHEX(String text) {
 			Matcher matcher = HEX_PATTERN.matcher(text);
-			while(matcher.find()) { text = text.replace(matcher.group(), ChatColor.of(matcher.group()).toString()); }
+			while(matcher.find()) { text = text.replace(matcher.group(), toLegacyHex(matcher.group())); }
 			return text;
+		}
+		
+		//#rrggbb -> §x§r§r§g§g§b§b (same output as the former Bungee ChatColor.of(hex).toString())
+		private static String toLegacyHex(String hex) {
+			StringBuilder sb = new StringBuilder("§x");
+			for(char c : hex.substring(1).toLowerCase().toCharArray()) {
+				sb.append('§').append(c);
+			}
+			return sb.toString();
+		}
+		
+		//&a -> §a (same behaviour as the former Bungee ChatColor.translateAlternateColorCodes('&', text))
+		private static final Pattern ALT_COLOR_PATTERN = Pattern.compile("&([0-9a-fk-orxA-FK-ORX])");
+		private static String translateAlternateColorCodes(String text) {
+			if(text == null) return null;
+			return ALT_COLOR_PATTERN.matcher(text).replaceAll(mr -> "§" + mr.group(1).toLowerCase());
 		}
 		
 		public String getServerData(String servername, Serverdata data, InputType type) {
